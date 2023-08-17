@@ -1,0 +1,78 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="column is-4 is-offset-4 is-centered">
+    {% with messages = get_flashed_messages() %}
+    {% if messages %}
+        <div class="notification is-danger">
+            {{ messages[0] }}
+        </div>
+    {% endif %}
+    {% endwith %}
+    
+    {% for vehicle in db_user_vehicle %}
+    <div class="box is-small is-centered">
+        <div class="column">
+            <div class="columns">
+                <div class="column">
+                    <div class="control has-text-centered has-text-black">
+                        <button id="info-button-{{ vehicle.license_plate }}" class="button is-info is-large" >
+                            {{ vehicle.license_plate }}
+                        </button>
+                    </div>
+                </div>
+                <div class="column">
+                    <div class="control has-text-centered has-text-black">
+                        <button class="button is-info is-large" >
+                            {% if vehicle.status == 'ready-to-park' or vehicle.status == 'not-parked' %} 
+                            Not Parked
+                            {% elif vehicle.status == 'parked' %}
+                            Parked
+                            {% else %}
+                            Updating...
+                            {% endif %}
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+
+            <form id="parking-form-{{ vehicle.license_plate }}" method="POST" 
+                {% if vehicle.status == 'ready-to-park' %} 
+                    action="/vehicle/prepare_for_parking" 
+                {% else %}
+                    action="/vehicle/leaving" 
+                {% endif %}>
+
+                <div class="field">
+                    <input type="hidden" name="license_plate" value="{{ vehicle.license_plate }}">
+                </div>
+
+                <div class="field">
+                    <div class="control has-text-centered has-text-black">
+                        {% if vehicle.status == 'ready-to-park' %}
+                        <button type="submit" class="button is-info is-large is-rounded" style="background-color: blue;">Park</button>
+                        {% elif vehicle.status == 'parked' %}
+                        <button type="submit" class="button is-info is-large is-rounded" style="background-color: orange;">Leave</button>
+                        {% elif vehicle.status == 'not-parked' %}
+                        <button type="submit" class="button is-info is-large is-rounded" style="background-color: red;" disabled>Not Ready</button>
+                        {% elif vehicle.status == 'on-parking' %}
+                        <button type="submit" class="button is-info is-large is-rounded" style="background-color: green;" disabled>On Parking...</button>
+                        {% elif vehicle.status == 'on-leaving' %}
+                        <button type="submit" class="button is-info is-large is-rounded" style="background-color: purple;" disabled>On Leaving...</button>
+                        {% endif %}
+                    </div>
+                </div>
+            </form>
+
+        </div>
+    </div>
+    {% endfor %}
+</div>
+<!-- <script>
+    setTimeout(function() {
+        location.reload();
+    }, 5000); // Reload the page after 5 seconds (5000 milliseconds)
+</script> -->
+{% endblock %}
+

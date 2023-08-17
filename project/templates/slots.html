@@ -1,0 +1,60 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="column is-4 is-offset-4 is-centered">
+    <div class="box">
+        <form id="parking-form" method="POST" action="/vehicle/parking">
+
+            <div class="field">
+                <input type="hidden" name="license_plate" value="{{ license_plate }}">
+            </div>
+
+            <div class="field">
+                <div class="control has-text-centered">
+                    <h1 class="title is-size-4 has-text-black">Choose Slot</h1>
+                    {% for slot in available_slot %}
+                    <label class="radio has-text-black"
+                        {% if slot.status == 'occupied' %}  style="display: inline-block; margin: 5px; padding: 10px; border: 2px solid red; border-radius: 10px;" 
+                        {% elif slot.status == 'free'%} 
+                            {% if slot.vehicle_id %}
+                                style="display: inline-block; margin: 5px; padding: 10px; border: 2px solid orange; border-radius: 10px;" 
+                            {% else%}
+                                style="display: inline-block; margin: 5px; padding: 10px; border: 2px solid green; border-radius: 10px;" 
+                            {% endif %}
+                        {% endif %}
+                        for="slot-{{ slot.slot_number }}">
+                        <input type="radio" name="parking_slot" id="slot-{{ slot.slot_number }}" value="{{ slot.slot_number }}" 
+                            {% if not (slot.status == 'free' and slot.vehicle_id == None) %} disabled {% endif %}>
+                        {{ slot.slot_number }}
+                    </label>
+                    {% endfor %}
+                </div>
+            </div>
+
+            <br>
+
+            <div class="field"> <!-- Use has-addons-centered for centering the button within its row -->
+                <div class="control has-text-centered">
+                    <button type="submit" class="button is-info is-large is-rounded" id="parking-button">Start Parking</button>
+                </div>
+            </div>
+
+        </form>
+    </div>
+</div>
+
+<script>
+    document.addEventListener("DOMContentLoaded", function() {
+        var form = document.getElementById("parking-form");
+        var button = document.getElementById("parking-button");
+    
+        form.addEventListener("submit", function() {
+            if (button) {
+                button.disabled = true;
+                button.textContent = "Waiting...";
+            }
+        });
+    });
+</script>
+
+{% endblock %}
